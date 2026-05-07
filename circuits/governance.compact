@@ -1,0 +1,32 @@
+pragma language_version 0.23.0;
+
+import CompactStandardLibrary;
+
+// 1. Ledger declarations (individual lines, no blocks)
+export ledger is_authorized: Boolean;
+export ledger admin_pk: Bytes<32>;
+
+// 2. The Constructor to initialize our "Admin"
+constructor(secret_admin_key: Bytes<32>) {
+    // We hash the secret key and disclose ONLY the hash (the public key)
+    admin_pk = disclose(persistentHash<Bytes<32>>(secret_admin_key));
+    is_authorized = false;
+}
+
+// 3. The Witness (This runs on the Manager's local machine only)
+witness managerSecret(): Bytes<32>;
+
+// 4. The Approval Circuit
+export circuit approve_action(): [] {
+    // Check if it's already authorized (Governance logic)
+    assert(!is_authorized, "Action already authorized");
+
+    // Get the secret from the local machine (private)
+    const secret = managerSecret();
+
+    // Verify the secret matches the hash on the ledger (ZK-Magic)
+    assert(persistentHash<Bytes<32>>(secret) == admin_pk, "Unauthorized: Manager key mismatch");
+
+    // Flip the switch
+    is_authorized = disclose(true);
+}

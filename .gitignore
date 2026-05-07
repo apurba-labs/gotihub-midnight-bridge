@@ -1,0 +1,18 @@
+# --- Dependencies ---
+node_modules/
+.npm/
+bun.lockb
+
+# --- Midnight Build Artifacts (Crucial) ---
+# We keep governance.compact, but ignore the auto-generated logic
+circuits/output/
+
+# --- Secrets & Environment ---
+.env
+.env.local
+.env.development.local
+
+# --- Logs & OS ---
+*.log
+.DS_Store
+dist/
